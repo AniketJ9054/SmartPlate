@@ -5,15 +5,12 @@
 ---
 
 ## 👥 Team & Submission Details
-- **Group:** Group 12 | **Division:** Division B (SE Computer Engineering)
+- **Division:** Division D (SY Computer Engineering)
 - **Institution:** Pimpri Chinchwad College of Engineering (PCCOE), Pune
 - **Team Members:**
-  - Prem Kothari (PRN: ...076)
-  - Aniket (PRN: ...084)
-  - Prathmesh (PRN: ...092)
-- **Drive Folder Format:** `076_084_092`
-
----
+  - Prem Kothari (PRN: 125B1B231)
+  - Aniket Jadhav (PRN: 125B1B214)
+  - Prathmesh Vagshette(PRN: 125B1B254)
 
 ## 🌐 Deploying on Render
 
