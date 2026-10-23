@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}PCCOE SmartPlate | Student Registration{% endblock %}
+
+{% block content %}
+<section class="auth-shell">
+  <div class="container auth-grid">
+    <div class="auth-panel">
+      <span class="eyebrow"><i class="fa-solid fa-graduation-cap"></i> Student Sign-Up</span>
+      <h1>Register as a Student</h1>
+      <p>Create your student account to view the daily canteen menu, reserve meals in advance, and prevent campus food waste.</p>
+
+      <div class="info-alert">
+        <i class="fa-solid fa-circle-info"></i>
+        <span><strong>Note:</strong> Registration is strictly for students. Canteen staff and administration access is pre-configured.</span>
+      </div>
+
+      <form method="POST" class="auth-form">
+        <div class="field-group">
+          <label for="name"><i class="fa-regular fa-user"></i> Full Name</label>
+          <input id="name" name="name" type="text" placeholder="e.g. Rahul Sharma" required />
+        </div>
+
+        <div class="field-group">
+          <label for="email"><i class="fa-regular fa-envelope"></i> College Email ID</label>
+          <input id="email" name="email" type="email" placeholder="e.g. rahul.sharma@pccoe.edu" required />
+        </div>
+
+        <div class="field-group">
+          <label for="password"><i class="fa-solid fa-lock"></i> Password</label>
+          <input id="password" name="password" type="password" placeholder="Create a secure password" required />
+        </div>
+
+        <button type="submit" class="button primary large w-full">
+          <i class="fa-solid fa-user-plus"></i> Complete Student Registration
+        </button>
+      </form>
+
+      <p class="form-note">
+        Already registered? <a href="{{ url_for('login') }}" class="text-link">Login here</a>
+      </p>
+    </div>
+
+    <div class="auth-illustration">
+      <img src="https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=900&q=80" alt="Sustainable PCCOE Student Meals" />
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,300 @@
+{% extends 'base.html' %}
+
+{% block title %}PCCOE SmartPlate | Student Dashboard{% endblock %}
+
+{% block content %}
+<section class="page-shell">
+  <div class="container dashboard-layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <span class="eyebrow"><i class="fa-solid fa-graduation-cap"></i> Student Portal</span>
+        <h2>Hello, {{ user.name.split(' ')[0] }}</h2>
+      </div>
+      <ul class="sidebar-list">
+        <li><a href="#overview" class="sidebar-link active"><i class="fa-solid fa-house"></i> Overview</a></li>
+        <li><a href="#menu-section" class="sidebar-link"><i class="fa-solid fa-utensils"></i> Daily Menu</a></li>
+        <li><a href="#upcoming-section" class="sidebar-link"><i class="fa-solid fa-calendar-check"></i> Upcoming Bookings</a></li>
+        <li><a href="#history-section" class="sidebar-link"><i class="fa-solid fa-clock-rotate-left"></i> Booking History</a></li>
+        <li><a href="#feedback-section" class="sidebar-link"><i class="fa-solid fa-comment-dots"></i> Feedback</a></li>
+      </ul>
+    </aside>
+
+    <div class="dashboard-main">
+      <div id="overview" class="overview-row four-up">
+        <article class="stat-box soft">
+          <span class="label">Today’s bookings</span>
+          <strong>{{ today_bookings|length }}</strong>
+          <small>Confirmed reservations</small>
+        </article>
+        <article class="stat-box soft">
+          <span class="label">Upcoming</span>
+          <strong>{{ upcoming|length }}</strong>
+          <small>Meals scheduled</small>
+        </article>
+        <article class="stat-box soft">
+          <span class="label">History</span>
+          <strong>{{ history|length }}</strong>
+          <small>Past orders</small>
+        </article>
+        <article class="stat-box soft">
+          <span class="label">Meals saved</span>
+          <strong>{{ upcoming|sum(attribute='quantity') if upcoming else 0 }}</strong>
+          <small>Planned portions</small>
+        </article>
+      </div>
+
+      <section id="menu-section" class="panel">
+        <div class="panel-header split-header">
+          <div>
+            <span class="eyebrow">PCCOE Canteen Menu</span>
+            <h3>Today’s Food Options</h3>
+          </div>
+          <!-- Menu Controls: Filter Pills & Search -->
+          <div class="menu-controls">
+            <div class="category-pills">
+              <button type="button" class="cat-pill active" onclick="filterCategory('all', this)">All</button>
+              <button type="button" class="cat-pill" onclick="filterCategory('breakfast', this)">Breakfast</button>
+              <button type="button" class="cat-pill" onclick="filterCategory('lunch', this)">Lunch</button>
+              <button type="button" class="cat-pill" onclick="filterCategory('dinner', this)">Dinner</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="menu-search-bar">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input type="text" id="dishSearchInput" placeholder="Quickly search meals by name or ingredients..." onkeyup="searchDishes()" />
+        </div>
+
+        <div class="menu-grid" id="dishesGrid">
+          {% for item in menu_items %}
+          <article class="menu-card" data-category="{{ item.category }}" data-name="{{ item.name|lower }}">
+            <img src="{{ item.image_url }}" alt="{{ item.name }}" loading="lazy" />
+            <div class="menu-card-body">
+              <div class="menu-meta-row">
+                <span class="badge badge-green">{{ item.category|title }}</span>
+                <span class="price">₹ {{ item.price }}</span>
+              </div>
+              <h4>{{ item.name }}</h4>
+              <p>{{ item.description }}</p>
+              <div class="menu-footer-row">
+                <span><i class="fa-solid fa-boxes-stacked"></i> {{ item.quantity_available }} portions left</span>
+                <span class="status-pill {{ 'good' if item.is_available and item.quantity_available > 0 else 'muted' }}">
+                  {{ 'Available' if item.is_available and item.quantity_available > 0 else 'Sold Out' }}
+                </span>
+              </div>
+
+              <form method="POST" class="booking-form">
+                <input type="hidden" name="action" value="book" />
+                <input type="hidden" name="item_id" value="{{ item.id }}" />
+                <div class="inline-form-row">
+                  <div class="date-field-wrap">
+                    <label class="sr-only">Date</label>
+                    <input type="date" name="booking_date" min="{{ today.isoformat() if today else '2026-10-10' }}" value="{{ today.isoformat() if today else '2026-10-10' }}" required />
+                  </div>
+                  <div class="qty-field-wrap">
+                    <input type="number" name="quantity" value="1" min="1" max="{{ item.quantity_available if item.quantity_available > 0 else 1 }}" required />
+                  </div>
+                </div>
+                <button type="submit" class="button primary small w-full" {% if not item.is_available or item.quantity_available <= 0 %}disabled{% endif %}>
+                  <i class="fa-solid fa-calendar-check"></i> Pre-book Meal
+                </button>
+              </form>
+            </div>
+          </article>
+          {% else %}
+          <div class="empty-state full-span">
+            <i class="fa-solid fa-bowl-food"></i>
+            <p>No meals currently published on the menu. The canteen team will add today's options shortly.</p>
+          </div>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section id="upcoming-section" class="panel">
+        <div class="panel-header">
+          <div>
+            <span class="eyebrow">Booking Status</span>
+            <h3>Upcoming Reservations</h3>
+          </div>
+        </div>
+
+        {% if upcoming %}
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Booking ID</th>
+                  <th>Meal</th>
+                  <th>Date</th>
+                  <th>Qty.</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for booking in upcoming %}
+                <tr>
+                  <td>
+                    <code class="booking-code">{{ booking.booking_id }}</code>
+                    <button type="button" class="copy-tiny" onclick="copyBookingCode('{{ booking.booking_id }}', this)">
+                      <i class="fa-regular fa-copy"></i>
+                    </button>
+                  </td>
+                  <td><strong>{{ booking.item_name }}</strong></td>
+                  <td>{{ booking.booking_date }}</td>
+                  <td>{{ booking.quantity }}</td>
+                  <td>
+                    {% if booking.is_served %}
+                      <span class="status-pill good"><i class="fa-solid fa-check"></i> Served</span>
+                    {% else %}
+                      <span class="status-pill good"><i class="fa-solid fa-clock"></i> Confirmed</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <form method="POST" class="inline-form" onsubmit="return confirm('Cancel this confirmed booking for {{ booking.item_name }}?');">
+                      <input type="hidden" name="action" value="cancel" />
+                      <input type="hidden" name="booking_id" value="{{ booking.booking_id }}" />
+                      <button type="submit" class="button danger small"><i class="fa-solid fa-xmark"></i> Cancel</button>
+                    </form>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="empty-state">
+            <i class="fa-solid fa-calendar-xmark"></i>
+            <p>No upcoming bookings yet. Choose a meal from the daily menu above to pre-book.</p>
+          </div>
+        {% endif %}
+      </section>
+
+      <section id="history-section" class="panel">
+        <div class="panel-header">
+          <div>
+            <span class="eyebrow">Booking History</span>
+            <h3>Past Meal Records</h3>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Booking Date</th>
+                <th>Meal</th>
+                <th>Qty.</th>
+                <th>Status</th>
+                <th>Booking ID</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for booking in history %}
+              <tr>
+                <td>{{ booking.booking_date }}</td>
+                <td>{{ booking.item_name }}</td>
+                <td>{{ booking.quantity }}</td>
+                <td>
+                  {% if booking.status == 'cancelled' %}
+                    <span class="status-pill muted">Cancelled</span>
+                  {% elif booking.is_served %}
+                    <span class="status-pill good"><i class="fa-solid fa-check"></i> Served</span>
+                  {% else %}
+                    <span class="status-pill good">Confirmed</span>
+                  {% endif %}
+                </td>
+                <td><code>{{ booking.booking_id }}</code></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="feedback-section" class="panel">
+        <div class="panel-header">
+          <div>
+            <span class="eyebrow">Feedback</span>
+            <h3>Rate a Served Meal</h3>
+          </div>
+        </div>
+
+        <form method="POST" class="feedback-form">
+          <input type="hidden" name="action" value="feedback" />
+          <div class="input-grid two-col">
+            <div class="field-group">
+              <label>Meal</label>
+              <select name="food_item_id">
+                {% for item in menu_items %}
+                <option value="{{ item.id }}">{{ item.name }} ({{ item.category|title }})</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="field-group">
+              <label>Served Date</label>
+              <input type="date" name="served_date" value="{{ today.isoformat() if today else '2026-10-10' }}" required />
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label>Rating</label>
+            <select name="rating">
+              <option value="5">⭐⭐⭐⭐⭐ (5 - Excellent)</option>
+              <option value="4">⭐⭐⭐⭐ (4 - Good)</option>
+              <option value="3">⭐⭐⭐ (3 - Average)</option>
+              <option value="2">⭐⭐ (2 - Fair)</option>
+              <option value="1">⭐ (1 - Poor)</option>
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label>Your Comments & Suggestions</label>
+            <textarea name="comment" rows="3" placeholder="Share your feedback about taste, portion size, freshness, or hygiene..."></textarea>
+          </div>
+
+          <button type="submit" class="button primary">
+            <i class="fa-solid fa-paper-plane"></i> Submit Feedback
+          </button>
+        </form>
+      </section>
+    </div>
+  </div>
+</section>
+
+<script>
+  function filterCategory(cat, btn) {
+    document.querySelectorAll('.cat-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const cards = document.querySelectorAll('.menu-card');
+    cards.forEach(card => {
+      if (cat === 'all' || card.getAttribute('data-category') === cat) {
+        card.style.display = '';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  }
+
+  function searchDishes() {
+    const q = document.getElementById('dishSearchInput').value.toLowerCase().trim();
+    const cards = document.querySelectorAll('.menu-card');
+    cards.forEach(card => {
+      const name = card.getAttribute('data-name') || '';
+      if (!q || name.includes(q)) {
+        card.style.display = '';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  }
+
+  function copyBookingCode(code, btn) {
+    navigator.clipboard.writeText(code).then(() => {
+      const orig = btn.innerHTML;
+      btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+      setTimeout(() => { btn.innerHTML = orig; }, 1500);
+    });
+  }
+</script>
+{% endblock %}

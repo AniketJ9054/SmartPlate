@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}PCCOE SmartPlate | Campus Canteen Sustainability{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container nav-shell">
+        <a class="brand" href="{{ url_for('home') }}">
+          <span class="brand-mark"><i class="fas fa-leaf"></i></span>
+          <div class="brand-text">
+            <span class="brand-title">SmartPlate</span>
+            <span class="brand-sub">PCCOE Canteen</span>
+          </div>
+        </a>
+
+        <nav class="main-nav" aria-label="Main navigation">
+          <a href="{{ url_for('home') }}" class="nav-link"><i class="fa-solid fa-house"></i> Home</a>
+          {% if current_user %}
+            {% if current_user.role == 'student' %}
+              <a href="{{ url_for('student_dashboard') }}" class="nav-link"><i class="fa-solid fa-graduation-cap"></i> Student Portal</a>
+            {% else %}
+              <a href="{{ url_for('staff_dashboard') }}" class="nav-link"><i class="fa-solid fa-kitchen-set"></i> Kitchen Ops</a>
+              <a href="{{ url_for('admin_dashboard') }}" class="nav-link"><i class="fa-solid fa-chart-pie"></i> Analytics Hub</a>
+            {% endif %}
+          {% else %}
+            <a href="{{ url_for('login') }}" class="nav-link"><i class="fa-solid fa-graduation-cap"></i> Student Portal</a>
+            <a href="{{ url_for('login') }}" class="nav-link"><i class="fa-solid fa-shield-halved"></i> Canteen & Admin</a>
+          {% endif %}
+          <a href="{{ url_for('dt_poster') }}" class="nav-link" target="_blank" style="color: #059669; font-weight: 700;"><i class="fa-solid fa-chalkboard-user"></i> DT Poster (FA2)</a>
+        </nav>
+
+        <div class="nav-actions">
+          {% if current_user %}
+            <span class="user-pill">
+              {% if current_user.role == 'admin' %}
+                <i class="fa-solid fa-shield-halved"></i> {{ current_user.name }} (Admin & Staff)
+              {% elif current_user.role == 'staff' %}
+                <i class="fa-solid fa-kitchen-set"></i> {{ current_user.name }} (Staff)
+              {% else %}
+                <i class="fa-solid fa-graduation-cap"></i> {{ current_user.name }} (Student)
+              {% endif %}
+            </span>
+            <a href="{{ url_for('logout') }}" class="button secondary small"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+          {% else %}
+            <a href="{{ url_for('login') }}" class="button secondary small"><i class="fa-solid fa-arrow-right-to-bracket"></i> Login</a>
+            <a href="{{ url_for('register') }}" class="button primary small"><i class="fa-solid fa-user-plus"></i> Student Sign-Up</a>
+          {% endif %}
+        </div>
+      </div>
+    </header>
+
+    <main>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="container flash-stack">
+            {% for category, message in messages %}
+              <div class="flash flash-{{ category }}">
+                <span>{{ message }}</span>
+                <button type="button" class="flash-close" onclick="this.parentElement.remove()" title="Dismiss">&times;</button>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-shell">
+        <div>
+          <h4>PCCOE SmartPlate</h4>
+          <p>Serve Smart. Waste Less. Powered by PCCOE Campus Sustainability.</p>
+        </div>
+        <div class="footer-links">
+          <a href="{{ url_for('home') }}">Home</a>
+          <a href="{{ url_for('dt_poster') }}" target="_blank">DT FA2 Poster</a>
+          {% if current_user and current_user.role == 'student' %}
+            <a href="{{ url_for('student_dashboard') }}">Student Portal</a>
+          {% elif current_user and current_user.role in ['admin', 'staff'] %}
+            <a href="{{ url_for('staff_dashboard') }}">Kitchen Ops</a>
+            <a href="{{ url_for('admin_dashboard') }}">Analytics Hub</a>
+          {% else %}
+            <a href="{{ url_for('login') }}">Student Portal</a>
+            <a href="{{ url_for('login') }}">Admin Login</a>
+          {% endif %}
+        </div>
+        <p>© <span id="current-year"></span> PCCOE SmartPlate System</p>
+      </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  </body>
+</html>

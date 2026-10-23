@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PCCOE SmartPlate | Campus Canteen Sustainability & Demand Forecasting</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <link rel="stylesheet" href="static/css/styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      /* Standalone & Interactive Enhancements */
+      .app-demo-section {
+        padding: 3rem 0;
+        background: #f8faf8;
+        border-top: 1px solid rgba(20, 58, 45, 0.08);
+        border-bottom: 1px solid rgba(20, 58, 45, 0.08);
+      }
+      .demo-tabs-bar {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+      }
+      .demo-tab-btn {
+        background: #ffffff;
+        color: var(--forest-900);
+        border: 1px solid rgba(20, 58, 45, 0.15);
+        padding: 0.75rem 1.4rem;
+        border-radius: 999px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+      }
+      .demo-tab-btn.active {
+        background: var(--forest-800);
+        color: #ffffff;
+        border-color: var(--forest-800);
+        box-shadow: 0 4px 14px rgba(28, 78, 61, 0.25);
+      }
+      .demo-panel {
+        display: none;
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 12px 30px rgba(17, 56, 42, 0.08);
+        border: 1px solid rgba(20, 58, 45, 0.08);
+      }
+      .demo-panel.active {
+        display: block;
+        animation: fadeIn 0.3s ease;
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .dish-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1.2rem;
+      }
+      .dish-card {
+        border: 1px solid rgba(20, 58, 45, 0.1);
+        border-radius: 16px;
+        padding: 1.25rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        background: #ffffff;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+      .dish-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(17, 56, 42, 0.08);
+      }
+      .dish-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+      }
+      .dish-badge {
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 3px 8px;
+        border-radius: 999px;
+        background: rgba(60, 155, 102, 0.15);
+        color: var(--forest-800);
+      }
+      .dish-price {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: var(--forest-900);
+      }
+      .dish-name {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--forest-900);
+        margin: 0.2rem 0 0.4rem;
+      }
+      .dish-stock {
+        font-size: 0.82rem;
+        color: var(--muted);
+        margin-bottom: 1rem;
+      }
+      .receipt-box {
+        background: #ecfdf5;
+        border: 2px dashed #059669;
+        border-radius: 14px;
+        padding: 1.25rem;
+        margin-top: 1.5rem;
+        display: none;
+      }
+      .receipt-grid {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+      .token-badge {
+        font-family: monospace;
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: #065f46;
+        background: #d1fae5;
+        padding: 4px 12px;
+        border-radius: 8px;
+      }
+      .banner-strip {
+        background: linear-gradient(135deg, #1e3a8a, #065f46);
+        color: #ffffff;
+        padding: 10px 16px;
+        text-align: center;
+        font-size: 0.88rem;
+        font-weight: 600;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+      }
+      .banner-strip a {
+        background: rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+        padding: 2px 10px;
+        border-radius: 999px;
+        text-decoration: underline;
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Top Notice Banner -->
+    <div class="banner-strip">
+      <span><i class="fa-solid fa-graduation-cap"></i> PCCOE SmartPlate — Campus Canteen Food Waste Mitigation & Demand Forecasting System</span>
+      <a href="poster.html" target="_blank"><i class="fa-solid fa-file-powerpoint"></i> View FA2 DT Poster</a>
+    </div>
+
+    <!-- Header & Navigation -->
+    <header class="site-header">
+      <div class="container nav-shell">
+        <a class="brand" href="index.html">
+          <span class="brand-mark"><i class="fas fa-leaf"></i></span>
+          <div class="brand-text">
+            <span class="brand-title">SmartPlate</span>
+            <span class="brand-sub">PCCOE Canteen</span>
+          </div>
+        </a>
+
+        <nav class="main-nav" aria-label="Main navigation">
+          <a href="#how-it-works" class="nav-link"><i class="fa-solid fa-compass"></i> How It Works</a>
+          <a href="#menu-preview" class="nav-link" onclick="switchDemoTab('student')"><i class="fa-solid fa-utensils"></i> Live Menu</a>
+          <a href="#interactive-portal" class="nav-link" onclick="switchDemoTab('student')"><i class="fa-solid fa-graduation-cap"></i> Student Portal</a>
+          <a href="#interactive-portal" class="nav-link" onclick="switchDemoTab('staff')"><i class="fa-solid fa-kitchen-set"></i> Kitchen Ops</a>
+          <a href="#interactive-portal" class="nav-link" onclick="switchDemoTab('admin')"><i class="fa-solid fa-chart-pie"></i> Analytics Hub</a>
+          <a href="poster.html" class="nav-link" target="_blank" style="color: #059669; font-weight: 700;">
+            <i class="fa-solid fa-chalkboard-user"></i> DT Poster
+          </a>
+        </nav>
+
+        <div class="nav-actions">
+          <a href="#interactive-portal" class="button secondary small" onclick="switchDemoTab('staff')">
+            <i class="fa-solid fa-arrow-right-to-bracket"></i> Canteen Login
+          </a>
+          <a href="#interactive-portal" class="button primary small" onclick="switchDemoTab('student')">
+            <i class="fa-solid fa-user-plus"></i> Pre-Book Meal
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- Hero Section -->
+      <section class="hero">
+        <div class="container hero-grid">
+          <div class="hero-copy">
+            <span class="eyebrow"><i class="fa-solid fa-leaf"></i> PCCOE Campus Sustainability Initiative</span>
+            <h1>Plan Smarter. Serve Better. Waste Less.</h1>
+            <p>
+              PCCOE SmartPlate enables students to pre-book meals in advance while providing canteen management with data-driven demand forecasting to eliminate food leftovers and maintain kitchen sustainability.
+            </p>
+            <div class="cta-row">
+              <a href="#interactive-portal" class="button primary large" onclick="switchDemoTab('student')">
+                <i class="fa-solid fa-utensils"></i> Student Meal Booking
+              </a>
+              <a href="#interactive-portal" class="button secondary large" onclick="switchDemoTab('staff')">
+                <i class="fa-solid fa-shield-halved"></i> Canteen & Admin Portal
+              </a>
+            </div>
+            <div class="hero-trust">
+              <div>
+                <strong>Zero Waste</strong>
+                <span>canteen initiative</span>
+              </div>
+              <div>
+                <strong>Real-Time</strong>
+                <span>campus meal planning</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero-visual">
+            <div class="visual-card main-card">
+              <div class="food-badge">PCCOE Canteen • Fresh • Sustainable</div>
+              <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=1000&q=80" alt="Healthy campus food" />
+            </div>
+            <div class="floating-stat stat-one">
+              <span>Dining Service</span>
+              <strong>PCCOE Pune</strong>
+            </div>
+            <div class="floating-stat stat-two">
+              <span>Target</span>
+              <strong>Zero Food Waste</strong>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Stats Bar -->
+      <section class="stats-bar">
+        <div class="container stats-grid">
+          <article class="stat-box">
+            <span class="label">Meals Served</span>
+            <strong>185+</strong>
+            <small>Fulfilled student orders</small>
+          </article>
+          <article class="stat-box">
+            <span class="label">Active Pre-Bookings</span>
+            <strong id="live-confirmed-bookings">24</strong>
+            <small>Current reserved orders</small>
+          </article>
+          <article class="stat-box">
+            <span class="label">Menu Dishes</span>
+            <strong>6 Active</strong>
+            <small>Available in canteen today</small>
+          </article>
+          <article class="stat-box">
+            <span class="label">Food Waste Reduced</span>
+            <strong>86.5%</strong>
+            <small>18.5 kg down to 2.5 kg</small>
+          </article>
+        </div>
+      </section>
+
+      <!-- INTERACTIVE SMARTPLATE APPLICATION PORTAL -->
+      <section id="interactive-portal" class="app-demo-section">
+        <div class="container">
+          <div class="section-head center" style="margin-bottom: 1.5rem;">
+            <span class="eyebrow"><i class="fa-solid fa-laptop-code"></i> Live SmartPlate System</span>
+            <h2>Experience the Campus Canteen Platform</h2>
+            <p style="color: var(--muted); max-width: 650px; margin: 0.5rem auto 0;">
+              Switch between the Student Pre-Booking Portal, Kitchen Fulfillment Hub, and Admin Waste Analytics.
+            </p>
+          </div>
+
+          <!-- Navigation Tabs -->
+          <div class="demo-tabs-bar">
+            <button class="demo-tab-btn active" id="tab-student-btn" onclick="switchDemoTab('student')">
+              <i class="fa-solid fa-graduation-cap"></i> 1. Student Meal Booking
+            </button>
+            <button class="demo-tab-btn" id="tab-staff-btn" onclick="switchDemoTab('staff')">
+              <i class="fa-solid fa-kitchen-set"></i> 2. Kitchen Operations (Chef Ramesh)
+            </button>
+            <button class="demo-tab-btn" id="tab-admin-btn" onclick="switchDemoTab('admin')">
+              <i class="fa-solid fa-chart-pie"></i> 3. Analytics & Waste Hub
+            </button>
+          </div>
+
+          <!-- TAB 1: STUDENT PORTAL -->
+          <div class="demo-panel active" id="panel-student">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(20,58,45,0.08); padding-bottom: 1rem; margin-bottom: 1rem;">
+              <div>
+                <h3 style="color: var(--forest-900); font-size: 1.3rem; margin: 0;">Today's Canteen Menu</h3>
+                <p style="color: var(--muted); font-size: 0.88rem; margin: 0.2rem 0 0;">Pre-book in 1 click. Zero deadlines, instant pickup token.</p>
+              </div>
+              <span class="user-pill"><i class="fa-solid fa-user-graduate"></i> Prem Kothari (Student)</span>
+            </div>
+
+            <div class="dish-grid" id="menu-preview">
+              <!-- Dish 1 -->
+              <div class="dish-card">
+                <div>
+                  <div class="dish-header">
+                    <span class="dish-badge">BREAKFAST & LUNCH</span>
+                    <span class="dish-price">₹20</span>
+                  </div>
+                  <h4 class="dish-name">Vada Pav</h4>
+                  <div class="dish-stock">Available: <strong id="stock-vadapav">199</strong> portions left</div>
+                </div>
+                <button class="button primary small w-full" onclick="bookMeal('Vada Pav', 20, 'stock-vadapav')">
+                  <i class="fa-solid fa-ticket"></i> Pre-Book Meal
+                </button>
+              </div>
+
+              <!-- Dish 2 -->
+              <div class="dish-card">
+                <div>
+                  <div class="dish-header">
+                    <span class="dish-badge">BREAKFAST</span>
+                    <span class="dish-price">₹25</span>
+                  </div>
+                  <h4 class="dish-name">Pohe</h4>
+                  <div class="dish-stock">Available: <strong id="stock-pohe">99</strong> portions left</div>
+                </div>
+                <button class="button primary small w-full" onclick="bookMeal('Pohe', 25, 'stock-pohe')">
+                  <i class="fa-solid fa-ticket"></i> Pre-Book Meal
+                </button>
+              </div>
+
+              <!-- Dish 3 -->
+              <div class="dish-card">
+                <div>
+                  <div class="dish-header">
+                    <span class="dish-badge">HOT SPECIAL</span>
+                    <span class="dish-price">₹75</span>
+                  </div>
+                  <h4 class="dish-name">Misal Pav</h4>
+                  <div class="dish-stock">Available: <strong id="stock-misal">50</strong> portions left</div>
+                </div>
+                <button class="button primary small w-full" onclick="bookMeal('Misal Pav', 75, 'stock-misal')">
+                  <i class="fa-solid fa-ticket"></i> Pre-Book Meal
+                </button>
+              </div>
+
+              <!-- Dish 4 -->
+              <div class="dish-card">
+                <div>
+                  <div class="dish-header">
+                    <span class="dish-badge">HOT BREAKFAST</span>
+                    <span class="dish-price">₹30</span>
+                  </div>
+                  <h4 class="dish-name">Upma</h4>
+                  <div class="dish-stock">Available: <strong id="stock-upma">75</strong> portions left</div>
+                </div>
+                <button class="button primary small w-full" onclick="bookMeal('Upma', 30, 'stock-upma')">
+                  <i class="fa-solid fa-ticket"></i> Pre-Book Meal
+                </button>
+              </div>
+
+              <!-- Dish 5 -->
+              <div class="dish-card">
+                <div>
+                  <div class="dish-header">
+                    <span class="dish-badge">SOUTH INDIAN</span>
+                    <span class="dish-price">₹60</span>
+                  </div>
+                  <h4 class="dish-name">Dosa with Sambar</h4>
+                  <div class="dish-stock">Available: <strong id="stock-dosa">50</strong> portions left</div>
+                </div>
+                <button class="button primary small w-full" onclick="bookMeal('Dosa with Sambar', 60, 'stock-dosa')">
+                  <i class="fa-solid fa-ticket"></i> Pre-Book Meal
+                </button>
+              </div>
+
+              <!-- Dish 6 -->
+              <div class="dish-card">
+                <div>
+                  <div class="dish-header">
+                    <span class="dish-badge">FASTING SPECIAL</span>
+                    <span class="dish-price">₹35</span>
+                  </div>
+                  <h4 class="dish-name">Shabudana Khichadi</h4>
+                  <div class="dish-stock">Available: <strong id="stock-shabu">74</strong> portions left</div>
+                </div>
+                <button class="button primary small w-full" onclick="bookMeal('Shabudana Khichadi', 35, 'stock-shabu')">
+                  <i class="fa-solid fa-ticket"></i> Pre-Book Meal
+                </button>
+              </div>
+            </div>
+
+            <!-- Booking Confirmation Receipt -->
+            <div id="booking-receipt" class="receipt-box">
+              <div class="receipt-grid">
+                <div>
+                  <span style="color: #065f46; font-size: 0.75rem; font-weight: 800; text-transform: uppercase;">
+                    <i class="fa-solid fa-circle-check"></i> Booking Successfully Confirmed
+                  </span>
+                  <h4 style="color: #064e3b; font-size: 1.25rem; font-weight: 800; margin: 4px 0 2px;" id="receipt-dish-title">Special Meal</h4>
+                  <p style="color: #047857; font-size: 0.85rem; margin: 0;">
+                    Pickup ready at PCCOE Canteen Counter. Show this token for queue-free meal collection!
+                  </p>
+                </div>
+                <div style="text-align: right;">
+                  <span style="font-size: 0.75rem; color: #047857;">Instant Pickup Token</span>
+                  <div class="token-badge" id="receipt-token-num">#SP-2026-042</div>
+                  <span style="font-size: 0.72rem; color: #059669; font-weight: 700; display: block; margin-top: 4px;">Status: CONFIRMED</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 2: KITCHEN OPERATIONS -->
+          <div class="demo-panel" id="panel-staff">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(20,58,45,0.08); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+              <div>
+                <h3 style="color: var(--forest-900); font-size: 1.3rem; margin: 0;">Kitchen Preparation & Order Fulfillment</h3>
+                <p style="color: var(--muted); font-size: 0.88rem; margin: 0.2rem 0 0;">Chef Ramesh view — Automated portion recommendations based on bookings & historical multipliers.</p>
+              </div>
+              <span class="user-pill"><i class="fa-solid fa-kitchen-set"></i> Canteen Head Chef (Ramesh)</span>
+            </div>
+
+            <!-- Demand Targets Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.2rem; margin-bottom: 2rem;">
+              <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 14px; padding: 1.2rem;">
+                <span style="font-size: 0.75rem; font-weight: 700; color: #166534; text-transform: uppercase;">Prep Target (Vada Pav)</span>
+                <div style="font-size: 2.2rem; font-weight: 800; color: #14532d; margin: 4px 0;" id="chef-vadapav-target">210 Portions</div>
+                <p style="font-size: 0.8rem; color: #15803d; margin: 0;">Pre-Bookings: <strong id="chef-vadapav-bookings">14</strong> + 1.25x Friday campus buffer</p>
+              </div>
+
+              <div style="background: #fefce8; border: 1px solid #fef08a; border-radius: 14px; padding: 1.2rem;">
+                <span style="font-size: 0.75rem; font-weight: 700; color: #854d0e; text-transform: uppercase;">Prep Target (Pohe)</span>
+                <div style="font-size: 2.2rem; font-weight: 800; color: #713f12; margin: 4px 0;">110 Portions</div>
+                <p style="font-size: 0.8rem; color: #a16207; margin: 0;">Pre-Bookings: 8 + Walk-in estimate</p>
+              </div>
+
+              <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 14px; padding: 1.2rem;">
+                <span style="font-size: 0.75rem; font-weight: 700; color: #1e40af; text-transform: uppercase;">Prep Target (Misal Pav)</span>
+                <div style="font-size: 2.2rem; font-weight: 800; color: #1e3a8a; margin: 4px 0;">60 Portions</div>
+                <p style="font-size: 0.8rem; color: #2563eb; margin: 0;">Hot Gravy Prepared: 12 Litres</p>
+              </div>
+            </div>
+
+            <!-- Orders Fulfillment Queue -->
+            <h4 style="font-size: 1.05rem; font-weight: 700; color: var(--forest-900); margin-bottom: 0.75rem;">
+              <i class="fa-solid fa-clipboard-list"></i> Incoming Orders Queue
+            </h4>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Token ID</th>
+                    <th>Student Name</th>
+                    <th>Dish Ordered</th>
+                    <th>Qty</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="orders-queue-body">
+                  <tr>
+                    <td><code>#SP-2026-041</code></td>
+                    <td><strong>Aarav Deshmukh</strong></td>
+                    <td>Vada Pav</td>
+                    <td>1</td>
+                    <td><span style="background: #fef3c7; color: #92400e; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 4px;"><i class="fa-solid fa-clock"></i> Pending Pickup</span></td>
+                    <td>
+                      <button class="button primary small" onclick="markOrderServed(this)">
+                        <i class="fa-solid fa-check"></i> Mark Served
+                      </button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>#SP-2026-040</code></td>
+                    <td><strong>Pooja Patil</strong></td>
+                    <td>Misal Pav</td>
+                    <td>1</td>
+                    <td><span style="background: #dcfce7; color: #166534; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 4px;"><i class="fa-solid fa-check-double"></i> Served</span></td>
+                    <td>
+                      <button class="button secondary small" onclick="revertOrderServed(this)">
+                        <i class="fa-solid fa-rotate-left"></i> Revert
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- TAB 3: ADMIN & WASTE ANALYTICS -->
+          <div class="demo-panel" id="panel-admin">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(20,58,45,0.08); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+              <div>
+                <h3 style="color: var(--forest-900); font-size: 1.3rem; margin: 0;">Canteen Management & Waste Analytics Hub</h3>
+                <p style="color: var(--muted); font-size: 0.88rem; margin: 0.2rem 0 0;">Unified executive audit — Track daily leftovers, cost savings, and UN SDG 12 compliance.</p>
+              </div>
+              <span class="user-pill"><i class="fa-solid fa-shield-halved"></i> PCCOE Canteen Admin</span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+              <article class="stat-box soft">
+                <span class="label">Waste Reduction</span>
+                <strong style="color: #059669;">86.5%</strong>
+                <small>vs 18.5 kg baseline</small>
+              </article>
+              <article class="stat-box soft">
+                <span class="label">Daily Leftover</span>
+                <strong id="admin-waste-metric">2.5 kg</strong>
+                <small>Recorded closing food</small>
+              </article>
+              <article class="stat-box soft">
+                <span class="label">Monthly Savings</span>
+                <strong style="color: #0d9488;">₹ 18,400</strong>
+                <small>Saved in raw ingredients</small>
+              </article>
+              <article class="stat-box soft">
+                <span class="label">SDG Compliance</span>
+                <strong>SDG 12.3</strong>
+                <small>PCCOE Green Campus Goal</small>
+              </article>
+            </div>
+
+            <!-- Leftover Logger Form Simulator -->
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 1.5rem;">
+              <h4 style="font-size: 1.05rem; font-weight: 700; color: var(--forest-900); margin-bottom: 0.8rem;">
+                <i class="fa-solid fa-scale-balanced"></i> Daily Kitchen Leftover Audit (4:30 PM Closing Time)
+              </h4>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; align-items: flex-end;">
+                <div>
+                  <label style="font-size: 0.8rem; font-weight: 700; display: block; margin-bottom: 4px;">Dish</label>
+                  <select style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid #cbd5e1;">
+                    <option>Vada Pav</option>
+                    <option>Pohe</option>
+                    <option>Misal Pav</option>
+                    <option>Dosa</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="font-size: 0.8rem; font-weight: 700; display: block; margin-bottom: 4px;">Leftover (kg)</label>
+                  <input type="number" id="waste-input-demo" value="2.5" step="0.5" style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid #cbd5e1;" />
+                </div>
+                <div>
+                  <label style="font-size: 0.8rem; font-weight: 700; display: block; margin-bottom: 4px;">Primary Cause</label>
+                  <select style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid #cbd5e1;">
+                    <option>Timetable / Lab Early Dismissal</option>
+                    <option>Rain / Low Footfall</option>
+                    <option>Plate Waste</option>
+                  </select>
+                </div>
+                <div>
+                  <button class="button primary w-full" onclick="saveDemoWaste()">
+                    <i class="fa-solid fa-floppy-disk"></i> Save Waste Record
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- How It Works Section -->
+      <section id="how-it-works" class="section">
+        <div class="container">
+          <div class="section-head center">
+            <span class="eyebrow">How It Works</span>
+            <h2>Move from guesswork to data-backed canteen planning</h2>
+          </div>
+
+          <div class="steps-grid">
+            <article class="info-card">
+              <div class="icon-wrap green"><i class="fa-solid fa-calendar-check"></i></div>
+              <h3>1. Students pre-book meals</h3>
+              <p>Students reserve breakfast, lunch, or snacks in advance based on the live daily canteen menu.</p>
+            </article>
+            <article class="info-card">
+              <div class="icon-wrap green"><i class="fa-solid fa-chart-line"></i></div>
+              <h3>2. SmartPlate estimates demand</h3>
+              <p>Historical demand, current bookings, and day-of-week multipliers calculate exact preparation targets.</p>
+            </article>
+            <article class="info-card">
+              <div class="icon-wrap green"><i class="fa-solid fa-bowl-food"></i></div>
+              <h3>3. Canteen prepares recommended portions</h3>
+              <p>Kitchen staff align batch cooking to real demand, eliminating morning overproduction.</p>
+            </article>
+            <article class="info-card">
+              <div class="icon-wrap green"><i class="fa-solid fa-recycle"></i></div>
+              <h3>4. Staff log leftovers & improve accuracy</h3>
+              <p>Daily leftover audits continuously calibrate forecasting formulas to prevent food wastage.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Core Features Section -->
+      <section class="section muted">
+        <div class="container">
+          <div class="section-head center">
+            <span class="eyebrow">Core Features</span>
+            <h2>Designed for PCCOE Campus Dining</h2>
+          </div>
+          <div class="feature-grid">
+            <article class="info-card">
+              <i class="fa-solid fa-utensils"></i>
+              <h3>Student Pre-Booking</h3>
+              <p>Easy reservation of breakfast, lunch, and snacks to guarantee hot food without queue delays.</p>
+            </article>
+            <article class="info-card">
+              <i class="fa-solid fa-brain"></i>
+              <h3>Statistical Forecasting</h3>
+              <p>Transparent predictive formulas combine prior waste rates, advance bookings, and weekday weights.</p>
+            </article>
+            <article class="info-card">
+              <i class="fa-solid fa-clipboard-list"></i>
+              <h3>Live Order Fulfillment</h3>
+              <p>Kitchen staff view incoming reservations and mark meals as served in real time.</p>
+            </article>
+            <article class="info-card">
+              <i class="fa-solid fa-trash-can-arrow-up"></i>
+              <h3>Waste Tracking Audit</h3>
+              <p>Log leftovers by food item and cause to maintain institutional transparency.</p>
+            </article>
+            <article class="info-card">
+              <i class="fa-solid fa-chart-pie"></i>
+              <h3>Executive Analytics</h3>
+              <p>Review daily waste trends, popular dishes, cost savings, and downloadable audit CSV reports.</p>
+            </article>
+            <article class="info-card">
+              <i class="fa-solid fa-shield-heart"></i>
+              <h3>Unified Management</h3>
+              <p>Single login for canteen operations (`admin@pccoe.edu`) combining kitchen prep and administrative auditing.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Call to Action Banner -->
+      <section class="section cta-banner-section">
+        <div class="container">
+          <div class="cta-banner-box">
+            <div class="cta-banner-content">
+              <h2>Ready to eliminate campus food waste?</h2>
+              <p>Pre-book meals as a PCCOE student or access the unified canteen management portal.</p>
+            </div>
+            <div class="cta-banner-actions">
+              <a href="#interactive-portal" class="button primary large" onclick="switchDemoTab('student')">
+                <i class="fa-solid fa-utensils"></i> Pre-Book Meal Now
+              </a>
+              <a href="#interactive-portal" class="button secondary large" onclick="switchDemoTab('staff')">
+                <i class="fa-solid fa-shield-halved"></i> Canteen Portal
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+      <div class="container footer-shell">
+        <div>
+          <h4>PCCOE SmartPlate</h4>
+          <p>Serve Smart. Waste Less. Powered by PCCOE Campus Sustainability.</p>
+        </div>
+        <div class="footer-links">
+          <a href="index.html">Home</a>
+          <a href="#interactive-portal" onclick="switchDemoTab('student')">Student Portal</a>
+          <a href="#interactive-portal" onclick="switchDemoTab('staff')">Kitchen Ops</a>
+          <a href="#interactive-portal" onclick="switchDemoTab('admin')">Analytics Hub</a>
+          <a href="poster.html" target="_blank">DT FA2 Poster</a>
+        </div>
+        <p>© 2026 PCCOE SmartPlate System • Group 12</p>
+      </div>
+    </footer>
+
+    <!-- Interactive Client-side Script -->
+    <script>
+      function switchDemoTab(tab) {
+        document.getElementById('panel-student').classList.remove('active');
+        document.getElementById('panel-staff').classList.remove('active');
+        document.getElementById('panel-admin').classList.remove('active');
+        document.getElementById('tab-student-btn').classList.remove('active');
+        document.getElementById('tab-staff-btn').classList.remove('active');
+        document.getElementById('tab-admin-btn').classList.remove('active');
+
+        document.getElementById('panel-' + tab).classList.add('active');
+        document.getElementById('tab-' + tab + '-btn').classList.add('active');
+      }
+
+      let currentToken = 42;
+      let totalBookings = 24;
+
+      function bookMeal(dishName, price, stockId) {
+        currentToken++;
+        totalBookings++;
+        
+        // Update stock
+        const stockEl = document.getElementById(stockId);
+        let stockVal = parseInt(stockEl.innerText);
+        if (stockVal > 0) {
+          stockEl.innerText = stockVal - 1;
+        }
+
+        // Update stats
+        document.getElementById('live-confirmed-bookings').innerText = totalBookings;
+
+        // Show receipt
+        const receipt = document.getElementById('booking-receipt');
+        document.getElementById('receipt-dish-title').innerText = dishName + ' (₹' + price + ')';
+        document.getElementById('receipt-token-num').innerText = '#SP-2026-0' + currentToken;
+        receipt.style.display = 'block';
+        receipt.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+        // Add to kitchen queue
+        const queueBody = document.getElementById('orders-queue-body');
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+          <td><code>#SP-2026-0${currentToken}</code></td>
+          <td><strong>Prem Kothari</strong></td>
+          <td>${dishName}</td>
+          <td>1</td>
+          <td><span style="background: #fef3c7; color: #92400e; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 4px;"><i class="fa-solid fa-clock"></i> Pending Pickup</span></td>
+          <td>
+            <button class="button primary small" onclick="markOrderServed(this)">
+              <i class="fa-solid fa-check"></i> Mark Served
+            </button>
+          </td>
+        `;
+        queueBody.prepend(newRow);
+
+        // Update kitchen target
+        const chefTarget = document.getElementById('chef-vadapav-target');
+        const chefBookings = document.getElementById('chef-vadapav-bookings');
+        if (dishName.includes('Vada Pav') && chefTarget && chefBookings) {
+          let b = parseInt(chefBookings.innerText) + 1;
+          chefBookings.innerText = b;
+          chefTarget.innerText = (200 + b) + ' Portions';
+        }
+      }
+
+      function markOrderServed(btn) {
+        const row = btn.closest('tr');
+        const statusCell = row.cells[4];
+        const actionCell = row.cells[5];
+
+        statusCell.innerHTML = `<span style="background: #dcfce7; color: #166534; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 4px;"><i class="fa-solid fa-check-double"></i> Served</span>`;
+        actionCell.innerHTML = `<button class="button secondary small" onclick="revertOrderServed(this)"><i class="fa-solid fa-rotate-left"></i> Revert</button>`;
+      }
+
+      function revertOrderServed(btn) {
+        const row = btn.closest('tr');
+        const statusCell = row.cells[4];
+        const actionCell = row.cells[5];
+
+        statusCell.innerHTML = `<span style="background: #fef3c7; color: #92400e; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 4px;"><i class="fa-solid fa-clock"></i> Pending Pickup</span>`;
+        actionCell.innerHTML = `<button class="button primary small" onclick="markOrderServed(this)"><i class="fa-solid fa-check"></i> Mark Served</button>`;
+      }
+
+      function saveDemoWaste() {
+        const val = document.getElementById('waste-input-demo').value;
+        document.getElementById('admin-waste-metric').innerText = val + ' kg';
+        alert('Waste audit record of ' + val + ' kg saved into SmartPlate daily database!');
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}PCCOE SmartPlate | Login{% endblock %}
+
+{% block content %}
+<section class="auth-shell">
+  <div class="container auth-grid">
+    <div class="auth-panel">
+      <span class="eyebrow"><i class="fa-solid fa-lock"></i> Welcome Back</span>
+      <h1>Sign In to SmartPlate</h1>
+      <p>Log in with your Student account or the unified PCCOE Canteen Management credentials.</p>
+
+      <!-- Quick 1-Click Fill Option -->
+      <div class="quick-fill-box">
+        <span class="quick-fill-label"><i class="fa-solid fa-bolt"></i> Quick 1-Click Admin Fill:</span>
+        <div class="quick-fill-buttons">
+          <button type="button" class="pill-btn admin-fill" onclick="fillCredentials('admin@pccoe.edu', 'admin1234')">
+            <i class="fa-solid fa-shield-halved"></i> Admin / Management (admin@pccoe.edu)
+          </button>
+        </div>
+      </div>
+
+      <form method="POST" class="auth-form" id="loginForm">
+        <div class="field-group">
+          <label for="email"><i class="fa-regular fa-envelope"></i> College Email ID</label>
+          <input id="email" name="email" type="email" placeholder="e.g. admin@pccoe.edu or your student email" required />
+        </div>
+
+        <div class="field-group">
+          <label for="password"><i class="fa-solid fa-key"></i> Password</label>
+          <input id="password" name="password" type="password" placeholder="Enter your password" required />
+        </div>
+
+        <button type="submit" class="button primary large w-full">
+          <i class="fa-solid fa-arrow-right-to-bracket"></i> Login to Dashboard
+        </button>
+      </form>
+
+      <div class="demo-creds">
+        <h4><i class="fa-solid fa-circle-info"></i> Canteen Administration Credentials</h4>
+        <ul>
+          <li>
+            <strong>Admin & Canteen Operations:</strong><br />
+            <code>admin@pccoe.edu</code> / <code>admin1234</code>
+            <button type="button" class="copy-tiny" onclick="fillCredentials('admin@pccoe.edu', 'admin1234')">Fill Admin</button>
+          </li>
+        </ul>
+      </div>
+
+      <p class="form-note">
+        Are you a student without an account? <a href="{{ url_for('register') }}" class="text-link">Create a Student Account here</a>
+      </p>
+    </div>
+
+    <div class="auth-illustration">
+      <div class="mini-card card-1">
+        <i class="fa-solid fa-check-circle"></i>
+        <span>Pre-booked Meals Reserved</span>
+      </div>
+      <div class="mini-card card-2">
+        <i class="fa-solid fa-chart-line"></i>
+        <span>Zero-Waste Kitchen Forecast</span>
+      </div>
+      <img src="https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=900&q=80" alt="PCCOE Canteen Management" />
+    </div>
+  </div>
+</section>
+
+<script>
+  function fillCredentials(email, password) {
+    document.getElementById('email').value = email;
+    document.getElementById('password').value = password;
+  }
+</script>
+{% endblock %}

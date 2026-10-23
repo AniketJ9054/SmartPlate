@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+
+{% block title %}PCCOE SmartPlate | Campus Canteen Sustainability{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <span class="eyebrow"><i class="fa-solid fa-leaf"></i> PCCOE Campus Sustainability Initiative</span>
+      <h1>Plan Smarter. Serve Better. Waste Less.</h1>
+      <p>
+        PCCOE SmartPlate enables students to pre-book meals in advance while providing canteen management with data-driven demand forecasting to eliminate food leftovers and maintain kitchen sustainability.
+      </p>
+      <div class="cta-row">
+        {% if current_user %}
+          {% if current_user.role == 'student' %}
+            <a href="{{ url_for('student_dashboard') }}" class="button primary large">
+              <i class="fa-solid fa-graduation-cap"></i> Open Student Portal
+            </a>
+          {% else %}
+            <a href="{{ url_for('admin_dashboard') }}" class="button primary large">
+              <i class="fa-solid fa-shield-halved"></i> Open Management Hub
+            </a>
+            <a href="{{ url_for('staff_dashboard') }}" class="button secondary large">
+              <i class="fa-solid fa-kitchen-set"></i> Kitchen Ops
+            </a>
+          {% endif %}
+        {% else %}
+          <a href="{{ url_for('login') }}" class="button primary large">
+            <i class="fa-solid fa-utensils"></i> Student Meal Booking
+          </a>
+          <a href="{{ url_for('login') }}" class="button secondary large">
+            <i class="fa-solid fa-shield-halved"></i> Canteen & Admin Login
+          </a>
+        {% endif %}
+      </div>
+      <div style="margin-top: 16px;">
+        <a href="{{ url_for('dt_poster') }}" target="_blank" class="button" style="background: linear-gradient(135deg, #1e3a8a, #0d9488); color: white; border: none; padding: 12px 22px; font-weight: 700; border-radius: 12px; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 6px 20px rgba(13, 148, 136, 0.25); text-decoration: none;">
+          <i class="fa-solid fa-chalkboard-user"></i> <span>View FA2 Design Thinking Poster (Sprint & Prototyping)</span> <span style="background: rgba(255,255,255,0.25); font-size: 0.78rem; padding: 3px 8px; border-radius: 999px; letter-spacing: 0.5px;">25 MARKS</span>
+        </a>
+      </div>
+      <div class="hero-trust">
+        <div>
+          <strong>Zero Waste</strong>
+          <span>canteen initiative</span>
+        </div>
+        <div>
+          <strong>Real-Time</strong>
+          <span>campus meal planning</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="visual-card main-card">
+        <div class="food-badge">PCCOE Canteen • Fresh • Sustainable</div>
+        <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=1000&q=80" alt="Healthy campus food" />
+      </div>
+      <div class="floating-stat stat-one">
+        <span>Dining Service</span>
+        <strong>PCCOE Pune</strong>
+      </div>
+      <div class="floating-stat stat-two">
+        <span>Target</span>
+        <strong>Zero Food Waste</strong>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="stats-bar">
+  <div class="container stats-grid">
+    <article class="stat-box">
+      <span class="label">Meals Served</span>
+      <strong>{{ stats.meals_served }}</strong>
+      <small>Fulfilled student orders</small>
+    </article>
+    <article class="stat-box">
+      <span class="label">Active Pre-Bookings</span>
+      <strong>{{ stats.confirmed_bookings }}</strong>
+      <small>Current reserved orders</small>
+    </article>
+    <article class="stat-box">
+      <span class="label">Menu Dishes</span>
+      <strong>{{ stats.food_items }}</strong>
+      <small>Available in canteen</small>
+    </article>
+    <article class="stat-box">
+      <span class="label">Waste Logged</span>
+      <strong>{{ '%.1f'|format(stats.waste_saved) }} kg</strong>
+      <small>Total tracked leftovers</small>
+    </article>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head center">
+      <span class="eyebrow">How It Works</span>
+      <h2>Move from guesswork to data-backed canteen planning</h2>
+    </div>
+
+    <div class="steps-grid">
+      <article class="info-card">
+        <div class="icon-wrap green"><i class="fa-solid fa-calendar-check"></i></div>
+        <h3>1. Students pre-book meals</h3>
+        <p>Students reserve breakfast, lunch, or dinner in advance based on the live daily menu.</p>
+      </article>
+      <article class="info-card">
+        <div class="icon-wrap green"><i class="fa-solid fa-chart-line"></i></div>
+        <h3>2. SmartPlate estimates demand</h3>
+        <p>Historical demand, bookings, and day-specific adjustments guide kitchen preparation targets.</p>
+      </article>
+      <article class="info-card">
+        <div class="icon-wrap green"><i class="fa-solid fa-bowl-food"></i></div>
+        <h3>3. Canteen prepares recommended portions</h3>
+        <p>Staff align food production to real student demand rather than overproducing.</p>
+      </article>
+      <article class="info-card">
+        <div class="icon-wrap green"><i class="fa-solid fa-recycle"></i></div>
+        <h3>4. Staff log leftovers & improve accuracy</h3>
+        <p>Daily leftover audits continuously train prediction models and prevent food wastage.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section muted">
+  <div class="container">
+    <div class="section-head center">
+      <span class="eyebrow">Core Features</span>
+      <h2>Designed for PCCOE Campus Dining</h2>
+    </div>
+    <div class="feature-grid">
+      <article class="info-card">
+        <i class="fa-solid fa-utensils"></i>
+        <h3>Student Pre-Booking</h3>
+        <p>Easy reservation of breakfast, lunch, and dinner to secure meal availability.</p>
+      </article>
+      <article class="info-card">
+        <i class="fa-solid fa-brain"></i>
+        <h3>Statistical Forecasting</h3>
+        <p>Transparent predictive formulas combine prior waste, confirmed bookings, and weekday weights.</p>
+      </article>
+      <article class="info-card">
+        <i class="fa-solid fa-clipboard-list"></i>
+        <h3>Live Order Fulfillment</h3>
+        <p>Kitchen staff can view incoming reservations and mark meals as served in real time.</p>
+      </article>
+      <article class="info-card">
+        <i class="fa-solid fa-trash-can-arrow-up"></i>
+        <h3>Waste Tracking Audit</h3>
+        <p>Log leftovers by food item and cause to take targeted corrective actions.</p>
+      </article>
+      <article class="info-card">
+        <i class="fa-solid fa-chart-pie"></i>
+        <h3>Executive Analytics</h3>
+        <p>Review daily waste trends, popular dishes, cost savings, and downloadable audit CSV reports.</p>
+      </article>
+      <article class="info-card">
+        <i class="fa-solid fa-shield-heart"></i>
+        <h3>Unified Management</h3>
+        <p>Consolidated administration for both kitchen food prep and administrative auditing.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section cta-banner-section">
+  <div class="container">
+    <div class="cta-banner-box">
+      <div class="cta-banner-content">
+        <h2>Ready to eliminate campus food waste?</h2>
+        <p>Sign up as a PCCOE student or access the unified canteen management portal.</p>
+      </div>
+      <div class="cta-banner-actions">
+        <a href="{{ url_for('register') }}" class="button primary large">
+          <i class="fa-solid fa-user-plus"></i> Student Sign-Up
+        </a>
+        <a href="{{ url_for('login') }}" class="button secondary large">
+          <i class="fa-solid fa-shield-halved"></i> Management Login
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
